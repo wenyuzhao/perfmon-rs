@@ -130,6 +130,7 @@ extern "C" {
             std::getline(ss, event, ',');
             if (!event.empty()) events.push_back(event);
         }
+        if (events.empty()) return;
         perf_events = std::make_unique<PerfEvents>(events);
         initial_counters.resize(events.size());
         final_counters.resize(events.size());
@@ -138,10 +139,15 @@ extern "C" {
     }
 
     void perfmon_begin() {
+        if (!perf_events) return;
         perf_events->ReadAll(initial_counters);
     }
 
     const EventResult* perfmon_end(int* size) {
+        if (!perf_events) {
+            *size = 0;
+            return nullptr;
+        }
         perf_events->ReadAll(final_counters);
         for (size_t i = 0; i < perf_events->events.size(); i++) {
             EventResult result;
