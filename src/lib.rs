@@ -1,5 +1,5 @@
 use core::slice;
-use std::{collections::HashMap, ffi::CStr, os::raw::c_char, sync::atomic::{AtomicBool, Ordering}};
+use std::{collections::HashMap, env, ffi::CStr, os::raw::c_char, sync::atomic::{AtomicBool, Ordering}};
 
 #[repr(C)]
 struct EventResult {
@@ -25,6 +25,9 @@ static PERFMON_PREPARED: AtomicBool = AtomicBool::new(false);
 
 pub fn initialize() {
     PERFMON_PREPARED.compare_exchange(false, true, Ordering::SeqCst, Ordering::SeqCst).expect("perfmon can only be initialized once.");
+    if env::var("PERF_EVENTS").is_err() {
+        env::set_var("PERF_EVENTS", "");
+    }
     unsafe {
         perfmon_prepare();
     }

@@ -128,7 +128,7 @@ extern "C" {
         while (ss.good()) {
             std::string event;
             std::getline(ss, event, ',');
-            events.push_back(event);
+            if (!event.empty()) events.push_back(event);
         }
         perf_events = std::make_unique<PerfEvents>(events);
         initial_counters.resize(events.size());
